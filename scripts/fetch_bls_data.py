@@ -34,8 +34,24 @@ def fetch_latest(series_ids, start_year, end_year):
     resp.raise_for_status()
     data = resp.json()
 
+    # --- New defensive checks ---
+    status = data.get("status")
+    if status != "REQUEST_SUCCEEDED":
+        print("BLS API request failed. Status:", status)
+        print("Message:", data.get("message"))
+        # Return empty DataFrame so caller can decide what to do
+        return pd.DataFrame(columns=["series_id", "date", "value"])
+
+    results = data.get("Results", {})
+    series_list = results.get("series")
+    if not series_list:
+        print("BLS API returned no 'series' data. Full response:")
+        print(data)
+        return pd.DataFrame(columns=["series_id", "date", "value"])
+    # --- end new checks ---
+
     rows = []
-    for series in data["Results"]["series"]:
+    for series in series_list:
         sid = series["seriesID"]
         for item in series["data"]:
             period = item["period"]  # 'M01'...'M12' or 'M13'
