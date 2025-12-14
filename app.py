@@ -81,7 +81,11 @@ def build_chart(df_plot, selected_ids, y_title):
         .encode(
             x=alt.X("date:T", axis=x_axis),
             y=alt.Y("value:Q", title=y_title),
-            color=alt.Color("Series:N", scale=color_scale, legend=alt.Legend(orient="top")),
+            color=alt.Color(
+                "Series:N",
+                scale=color_scale,
+                legend=alt.Legend(orient="top"),
+            ),
             tooltip=[
                 alt.Tooltip("Series:N"),
                 alt.Tooltip("date:T", title="Date", format="%B %Y"),
@@ -131,6 +135,9 @@ def main():
             value=f"{value:.2f}",
             help=f"{meta['help']} Units: {meta['units']}",
         )
+
+    # Best-practice separation between KPI section and charts
+    st.divider()
 
     # ---- Sidebar Controls ----
     st.sidebar.header("Chart Controls")
