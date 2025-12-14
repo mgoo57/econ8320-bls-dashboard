@@ -10,6 +10,7 @@ SERIES_META = {
         "units": "Thousands of Jobs",
         "color": "#1f77b4",  # blue
         "help": "All Employees on Nonfarm Payrolls (seasonally adjusted).",
+        "unit_group": "Thousands",
     },
     "LNS14000000": {
         "label": "Unemployment Rate",
@@ -17,6 +18,7 @@ SERIES_META = {
         "units": "Percent",
         "color": "#d62728",  # red
         "help": "Percent of the Labor Force that is Unemployed.",
+        "unit_group": "Percent",
     },
     "LNS11300000": {
         "label": "Participation Rate",
@@ -24,6 +26,7 @@ SERIES_META = {
         "units": "Percent",
         "color": "#2ca02c",  # green
         "help": "Share of the Working-Age Population that is in the Labor Force.",
+        "unit_group": "Percent",
     },
     "JTS000000000000000JOL": {
         "label": "Job Openings",
@@ -31,6 +34,7 @@ SERIES_META = {
         "units": "Thousands of Openings",
         "color": "#ff7f0e",  # orange
         "help": "Total Nonfarm Job Openings from the JOLTS Survey.",
+        "unit_group": "Thousands",
     },
 }
 
@@ -56,7 +60,7 @@ def render_color_key(selected_ids):
     st.markdown(" ".join(items), unsafe_allow_html=True)
 
 
-def build_chart(df_plot, selected_ids):
+def build_chart(df_plot, selected_ids, y_title):
     df_plot = df_plot.copy()
     df_plot["Series"] = df_plot["series_id"].map(lambda x: SERIES_META[x]["label"])
 
@@ -66,7 +70,7 @@ def build_chart(df_plot, selected_ids):
 
     x_axis = alt.Axis(
         title="Date",
-        format="%b %Y",  # e.g., Oct 2025
+        format="%b %Y",
         labelAngle=0,
         tickCount=8,
     )
@@ -76,7 +80,7 @@ def build_chart(df_plot, selected_ids):
         .mark_line()
         .encode(
             x=alt.X("date:T", axis=x_axis),
-            y=alt.Y("value:Q", title="Value"),
+            y=alt.Y("value:Q", title=y_title),
             color=alt.Color("Series:N", scale=color_scale, legend=alt.Legend(orient="top")),
             tooltip=[
                 alt.Tooltip("Series:N"),
@@ -84,7 +88,7 @@ def build_chart(df_plot, selected_ids):
                 alt.Tooltip("value:Q", title="Value", format=",.2f"),
             ],
         )
-        .properties(height=420)
+        .properties(height=360)
     )
     return chart
 
@@ -133,7 +137,7 @@ def main():
             help=f"{meta['help']} Units: {meta['units']}",
         )
 
-    # ---- Time series ----
+    # ---- Time Series ----
     st.subheader("Time Series")
 
     selected_ids = st.multiselect(
@@ -152,13 +156,21 @@ def main():
         cutoff = df_plot["date"].max() - pd.DateOffset(months=months_back)
         df_plot = df_plot[df_plot["date"] >= cutoff]
 
-        chart = build_chart(df_plot, selected_ids)
-        st.altair_chart(chart, use_container_width=True)
+        # Split selected series by unit group
+        thousands_ids = [sid for sid in selected_ids if SERIES_META[sid]["unit_group"] == "Thousands"]
+        percent_ids = [sid for sid in selected_ids if SERIES_META[sid]["unit_group"] == "Percent"]
 
-        st.caption(
-            "Note: Different Series Use Different Units (%, Thousands). "
-            "For Direct Comparisons, Select Series With Matching Units."
-        )
+        if thousands_ids:
+            st.markdown("### Levels (Thousands)")
+            df_thousands = df_plot[df_plot["series_id"].isin(thousands_ids)]
+            chart_thousands = build_chart(df_thousands, thousands_ids, y_title="Thousands")
+            st.altair_chart(chart_thousands, use_container_width=True)
+
+        if percent_ids:
+            st.markdown("### Rates (Percent)")
+            df_percent = df_plot[df_plot["series_id"].isin(percent_ids)]
+            chart_percent = build_chart(df_percent, percent_ids, y_title="Percent")
+            st.altair_chart(chart_percent, use_container_width=True)
 
 
 if __name__ == "__main__":
