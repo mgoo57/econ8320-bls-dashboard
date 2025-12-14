@@ -7,7 +7,7 @@ SERIES_META = {
     "CES0000000001": {
         "label": "Nonfarm Employment",
         "full": "Total Nonfarm Employment",
-        "units": "Thousands of Jobs",
+        "units": "THOUSANDS of Jobs",
         "color": "#1f77b4",  # blue
         "help": "All Employees on Nonfarm Payrolls (seasonally adjusted).",
         "unit_group": "Thousands",
@@ -15,7 +15,7 @@ SERIES_META = {
     "LNS14000000": {
         "label": "Unemployment Rate",
         "full": "Unemployment Rate",
-        "units": "Percent",
+        "units": "PERCENT",
         "color": "#d62728",  # red
         "help": "Percent of the Labor Force that is Unemployed.",
         "unit_group": "Percent",
@@ -23,7 +23,7 @@ SERIES_META = {
     "LNS11300000": {
         "label": "Participation Rate",
         "full": "Labor Force Participation Rate",
-        "units": "Percent",
+        "units": "PERCENT",
         "color": "#2ca02c",  # green
         "help": "Share of the Working-Age Population that is in the Labor Force.",
         "unit_group": "Percent",
@@ -31,7 +31,7 @@ SERIES_META = {
     "JTS000000000000000JOL": {
         "label": "Job Openings",
         "full": "Job Openings (JOLTS, Total Nonfarm)",
-        "units": "Thousands of Openings",
+        "units": "THOUSANDS of Openings",
         "color": "#ff7f0e",  # orange
         "help": "Total Nonfarm Job Openings from the JOLTS Survey.",
         "unit_group": "Thousands",
