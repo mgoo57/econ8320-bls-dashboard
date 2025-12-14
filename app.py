@@ -97,11 +97,6 @@ def main():
     st.title("U.S. Labor Market Dashboard")
     st.caption("Data source: U.S. Bureau of Labor Statistics (BLS)")
 
-    # Optional manual refresh (helpful for Streamlit Cloud caching)
-    #if st.button("Refresh Data"):
-        #st.cache_data.clear()
-        #st.rerun()
-
     mtime = os.path.getmtime("data/bls_labor_data.csv")
     df = load_data(mtime)
 
@@ -137,17 +132,25 @@ def main():
             help=f"{meta['help']} Units: {meta['units']}",
         )
 
-    # ---- Time Series ----
-    st.subheader("Time Series")
+    # ---- Sidebar Controls ----
+    st.sidebar.header("Chart Controls")
 
-    selected_ids = st.multiselect(
+    selected_ids = st.sidebar.multiselect(
         "Choose Series To Plot:",
         options=list(SERIES_META.keys()),
         default=["CES0000000001", "LNS14000000"],
         format_func=lambda x: SERIES_META[x]["full"],
     )
 
-    months_back = st.slider("Show Last N Months:", 12, 120, 60)
+    months_back = st.sidebar.slider(
+        "Show Last N Months:",
+        12,
+        120,
+        60,
+    )
+
+    # ---- Time Series ----
+    st.subheader("Time Series")
 
     if selected_ids:
         render_color_key(selected_ids)
@@ -171,6 +174,9 @@ def main():
             df_percent = df_plot[df_plot["series_id"].isin(percent_ids)]
             chart_percent = build_chart(df_percent, percent_ids, y_title="Percent")
             st.altair_chart(chart_percent, use_container_width=True)
+
+    else:
+        st.info("Please Select At Least One Series In The Sidebar To Display The Charts.")
 
 
 if __name__ == "__main__":
