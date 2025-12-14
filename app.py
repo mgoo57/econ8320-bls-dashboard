@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import os
 
 SERIES_META = {
     "CES0000000001": {
@@ -33,10 +34,12 @@ SERIES_META = {
     },
 }
 
+
 @st.cache_data
-def load_data():
+def load_data(_mtime: float):
     df = pd.read_csv("data/bls_labor_data.csv", parse_dates=["date"])
     return df
+
 
 def render_color_key(selected_ids):
     """Small colored key so the user can map series -> color."""
@@ -44,28 +47,28 @@ def render_color_key(selected_ids):
     for sid in selected_ids:
         meta = SERIES_META[sid]
         items.append(
-            f"<span style='display:inline-flex;align-items:center;margin-right:14px;'>"
-            f"<span style='width:10px;height:10px;border-radius:50%;background:{meta['color']};display:inline-block;margin-right:6px;'></span>"
+            "<span style='display:inline-flex;align-items:center;margin-right:14px;'>"
+            f"<span style='width:10px;height:10px;border-radius:50%;background:{meta['color']};"
+            "display:inline-block;margin-right:6px;'></span>"
             f"{meta['label']}"
-            f"</span>"
+            "</span>"
         )
     st.markdown(" ".join(items), unsafe_allow_html=True)
+
 
 def build_chart(df_plot, selected_ids):
     df_plot = df_plot.copy()
     df_plot["Series"] = df_plot["series_id"].map(lambda x: SERIES_META[x]["label"])
 
-    # Force consistent colors for selected series
     domain = [SERIES_META[s]["label"] for s in selected_ids]
     rng = [SERIES_META[s]["color"] for s in selected_ids]
     color_scale = alt.Scale(domain=domain, range=rng)
 
-    # X-axis formatting: show year-month and tick about every 6 months
     x_axis = alt.Axis(
         title="Date",
-        format="%b %Y",      # e.g., Oct 2025
+        format="%b %Y",  # e.g., Oct 2025
         labelAngle=0,
-        tickCount=8
+        tickCount=8,
     )
 
     chart = (
@@ -85,16 +88,24 @@ def build_chart(df_plot, selected_ids):
     )
     return chart
 
+
 def main():
     st.title("U.S. Labor Market Dashboard")
     st.caption("Data source: U.S. Bureau of Labor Statistics (BLS)")
 
-    df = load_data()
+    # Optional manual refresh (helpful for Streamlit Cloud caching)
+    if st.button("Refresh Data"):
+        st.cache_data.clear()
+        st.rerun()
+
+    mtime = os.path.getmtime("data/bls_labor_data.csv")
+    df = load_data(mtime)
+
     latest_date = df["date"].max().date()
-    st.write(f"Latest data month: **{latest_date}**")
+    st.write(f"Latest Data Month: **{latest_date}**")
 
     # ---- KPIs (2x2 so labels don't get squished) ----
-    st.subheader("Latest indicators")
+    st.subheader("Latest Indicators")
 
     latest = df.sort_values("date").groupby("series_id").tail(1).set_index("series_id")
 
@@ -123,19 +134,18 @@ def main():
         )
 
     # ---- Time series ----
-    st.subheader("Time series")
+    st.subheader("Time Series")
 
     selected_ids = st.multiselect(
-        "Choose series to plot:",
+        "Choose Series To Plot:",
         options=list(SERIES_META.keys()),
         default=["CES0000000001", "LNS14000000"],
-        format_func=lambda x: SERIES_META[x]["full"],  # shows full name in dropdown
+        format_func=lambda x: SERIES_META[x]["full"],
     )
 
-    months_back = st.slider("Show last N months:", 12, 120, 60)
+    months_back = st.slider("Show Last N Months:", 12, 120, 60)
 
     if selected_ids:
-        # Color key (since Streamlit chips won't be multi-colored)
         render_color_key(selected_ids)
 
         df_plot = df[df["series_id"].isin(selected_ids)].copy()
@@ -146,9 +156,10 @@ def main():
         st.altair_chart(chart, use_container_width=True)
 
         st.caption(
-            "Note: different series use different units (%, thousands). "
-            "For direct comparisons, select series with matching units."
+            "Note: Different Series Use Different Units (%, Thousands). "
+            "For Direct Comparisons, Select Series With Matching Units."
         )
+
 
 if __name__ == "__main__":
     main()
