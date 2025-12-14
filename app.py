@@ -98,9 +98,9 @@ def main():
     st.caption("Data source: U.S. Bureau of Labor Statistics (BLS)")
 
     # Optional manual refresh (helpful for Streamlit Cloud caching)
-    if st.button("Refresh Data"):
-        st.cache_data.clear()
-        st.rerun()
+    #if st.button("Refresh Data"):
+        #st.cache_data.clear()
+        #st.rerun()
 
     mtime = os.path.getmtime("data/bls_labor_data.csv")
     df = load_data(mtime)
