@@ -4,32 +4,32 @@ import altair as alt
 
 SERIES_META = {
     "CES0000000001": {
-        "label": "Nonfarm employment",
-        "full": "Total nonfarm employment",
-        "units": "Thousands of jobs",
+        "label": "Nonfarm Employment",
+        "full": "Total Nonfarm Employment",
+        "units": "Thousands of Jobs",
         "color": "#1f77b4",  # blue
-        "help": "All employees on nonfarm payrolls (seasonally adjusted).",
+        "help": "All Employees on Nonfarm Payrolls (seasonally adjusted).",
     },
     "LNS14000000": {
-        "label": "Unemployment rate",
-        "full": "Unemployment rate",
+        "label": "Unemployment Rate",
+        "full": "Unemployment Rate",
         "units": "Percent",
         "color": "#d62728",  # red
-        "help": "Percent of the labor force that is unemployed.",
+        "help": "Percent of the Labor Force that is Unemployed.",
     },
     "LNS11300000": {
-        "label": "Participation rate",
-        "full": "Labor force participation rate",
+        "label": "Participation Rate",
+        "full": "Labor Force Participation Rate",
         "units": "Percent",
         "color": "#2ca02c",  # green
-        "help": "Share of the working-age population that is in the labor force.",
+        "help": "Share of the Working-Age Population that is in the Labor Force.",
     },
     "JTS000000000000000JOL": {
-        "label": "Job openings",
-        "full": "Job openings (JOLTS, total nonfarm)",
-        "units": "Thousands of openings",
+        "label": "Job Openings",
+        "full": "Job Openings (JOLTS, Total Nonfarm)",
+        "units": "Thousands of Openings",
         "color": "#ff7f0e",  # orange
-        "help": "Total nonfarm job openings from the JOLTS survey.",
+        "help": "Total Nonfarm Job Openings from the JOLTS Survey.",
     },
 }
 
